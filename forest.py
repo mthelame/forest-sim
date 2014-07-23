@@ -85,9 +85,6 @@ class Forest(object):
 
 class ToroidalForest(Forest):
 
-    def __init__(self, dim, agent_types):
-        super(ToroidalForest, self).__init__(dim, agent_types)
-
     def neighbor_coords(self, in_x, in_y):
         neighbors = []
         for x in xrange(in_x - 1, in_x + 2):

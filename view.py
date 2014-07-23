@@ -91,13 +91,3 @@ class GuiView(object):
 
     def mainloop(self):
         self.root.mainloop()
-
-
-
-
-
-
-
-
-
-        
