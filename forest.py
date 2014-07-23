@@ -41,11 +41,11 @@ class Forest(object):
         neighbors = []
         for x in xrange(in_x - 1, in_x + 2):
             for y in xrange(in_y - 1, in_y + 2):
-                x = x % self.width
-                y = y % self.length
+                if x >= self.width or x < 0 or y >= self.length or y < 0:
+                    continue
                 if (x,y) != (in_x, in_y):
                     neighbors.append((x,y))
-        return neighbors
+        return neighbors        
 
     def populate_type(self, agent_type):
         for pos,cell in self.cells.iteritems():
@@ -81,3 +81,20 @@ class Forest(object):
     def super_iter(self):
         for agent_type in self.agent_types:
             agent_type.super_action(self, self.type_data[agent_type.__name__])
+
+
+class ToroidalForest(Forest):
+
+    def __init__(self, dim, agent_types):
+        super(ToroidalForest, self).__init__(dim, agent_types)
+
+    def neighbor_coords(self, in_x, in_y):
+        neighbors = []
+        for x in xrange(in_x - 1, in_x + 2):
+            for y in xrange(in_y - 1, in_y + 2):
+                x = x % self.width
+                y = y % self.length
+                if (x,y) != (in_x, in_y):
+                    neighbors.append((x,y))
+        return neighbors
+
