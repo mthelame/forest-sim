@@ -222,6 +222,4 @@ class Bear(Agent):
             world.add_agent(world.spawn_new(cls))
         else:
             world.rem_agent(world.random_agent(cls))
-
-
         data['mauls'] = 0

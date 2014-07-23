@@ -52,7 +52,7 @@ class GuiView(object):
 
         self.simming = False
 
-        self.root.bind('<Button-1>', self.on_click)
+        self.canv.bind('<Button-1>', self.on_click)
 
     def draw_row(self, row):
         for col in xrange(self.world.width):
@@ -80,7 +80,7 @@ class GuiView(object):
         if self.simming:
             self.world.iter_sim()
             self.draw_grid()
-            self.root.after(1, self.iter_loop)
+            self.canv.after(1, self.iter_loop)
 
     def on_click(self, event):
         if not self.simming:
