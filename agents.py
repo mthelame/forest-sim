@@ -76,7 +76,7 @@ class Agent(object):
 class Tree(Agent):
     ratio = .6
     base_fertility = 0.015
-    age_up_one = 18
+    age_up_one = 24
     age_up_two = 120
     marker = 'T'
     graph_units = 10
@@ -118,9 +118,6 @@ class Tree(Agent):
             coord = random.choice(valid_coords)
             return type(self).breed_new(self.world, coord[0], coord[1])
 
-    def value(self):
-        return self.stage ** 2
-
     @classmethod
     def breed_new(cls, world, x, y):
         agent = cls(world, x, y)
@@ -130,7 +127,7 @@ class Tree(Agent):
 
 
 class LumberJack(Agent):
-    ratio = 0.03
+    ratio = 0.005
     speed = 2
     marker = '#'
 
@@ -139,6 +136,9 @@ class LumberJack(Agent):
 
     def preys_on(self, agent):
         return type(agent) == Tree and agent.stage > 0 and agent.active
+
+    def prey_value(self, prey):
+        return int(prey.stage ** 1.6)
 
     def action(self):
         self.age += 1
@@ -155,7 +155,7 @@ class LumberJack(Agent):
         if prey:
             self.world.rem_agent(prey)
             d = self.get_data_dict()
-            d['total_lumber'] += prey.value()
+            d['total_lumber'] += self.prey_value(prey)
 
     @classmethod
     def create_data_dict(cls):
@@ -183,16 +183,62 @@ class LumberJack(Agent):
         data['total_lumber'] = 0
 
 
+class LonerLJ(LumberJack):
+    marker = 'L'
+
+    def __init__(self, world, x, y):
+        super(LumberJack, self).__init__(world, x, y)
+        self.lumber_collected = 0
+
+    def action(self):
+        self.age += 1
+        moves_left = type(self).speed
+        prey = None
+        while moves_left > 0:
+            prey = self.get_prey()
+            if prey:
+                prey.active = False
+                break
+
+            self.move()
+            moves_left -= 1
+        if prey:
+            self.world.rem_agent(prey)
+            self.lumber_collected += self.prey_value(prey)
+
+    @classmethod
+    def create_data_dict(cls):
+        return {'count': 0}
+
+    @classmethod
+    def super_action(cls, world, data):
+        new_loners = 0
+        all_loners = list(world.agents[cls.__name__])
+        if len(all_loners) == 0:
+            new_loners += 1 # always one fool willing to try his luck
+
+        for loner in all_loners:
+            if loner.lumber_collected < 4: 
+                world.rem_agent(loner)
+            if loner.lumber_collected > 16: # huge profits inspire copycats
+                new_loners += 1
+            loner.lumber_collected = 0
+
+        for _ in xrange(new_loners):
+            world.add_agent(world.spawn_new(cls))
+
+
+
 class Bear(Agent):
-    ratio = 0.01
-    speed = 3
+    ratio = 0.003
+    speed = 4
     marker = '@'
 
     def __init__(self, world, x, y):
         super(Bear, self).__init__(world, x, y)
 
     def preys_on(self, agent):
-        return type(agent) == LumberJack and agent.active
+        return isinstance(agent, LumberJack) and agent.active
 
     def action(self):
         self.age += 1

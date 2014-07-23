@@ -4,7 +4,7 @@ import forest, view, agents
 
 
 def tk_main(forest):
-    app = view.GuiView(forest, 12)
+    app = view.GuiView(forest)
     app.mainloop()
 
 
@@ -22,8 +22,8 @@ def console_main(forest):
 
 
 if __name__ == '__main__':
-    agent_types = [agents.Tree, agents.LumberJack, agents.Bear]
-    f = forest.Forest(30, agent_types)
+    agent_types = [agents.Tree, agents.LonerLJ, agents.LumberJack, agents.Bear]
+    f = forest.Forest(35, agent_types)
     f.populate_all()
 
     if len(sys.argv) > 1:

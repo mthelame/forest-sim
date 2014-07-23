@@ -15,7 +15,7 @@ class Forest(object):
         self.agents = {kind.__name__: set() for kind in self.agent_types}
         self.type_data = {kind.__name__: kind.create_data_dict() for kind in self.agent_types}
 
-        self.steps = 0
+        self.steps = 1
 
     def count_type(self, kind):
         return len(self.agents[kind.__name__])

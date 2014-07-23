@@ -4,7 +4,9 @@ str_to_color = {'T': '#003300',
                 't': '#194719',
                 '+': '#335C33',
                 '@': '#1F0F00',
-                '#': '#8D1919'}
+                '#': '#8D1919',
+                'L': '#FF6600',
+                ' ': '#AD855C'}
 
 class ForestView(object):
 
@@ -41,16 +43,17 @@ class ForestView(object):
 
 class GuiView(object):
 
-    def __init__(self, world, scale):
-        self.scale = scale
+    def __init__(self, world):
+        self.scale = 500 // world.length
         self.world = world
 
         self.root = tk.Tk()
-        self.canv = tk.Canvas(self.root, height=world.length*scale + 5, width=world.width*scale + 5)
+        self.canv = tk.Canvas(self.root, height=world.length*self.scale + 5, 
+                                         width=world.width*self.scale + 5)
         self.canv.pack()
         self.draw_grid()
 
-        self.simming = False
+        self.simming = False # whether the sim is running
 
         self.canv.bind('<Button-1>', self.on_click)
 
@@ -68,9 +71,10 @@ class GuiView(object):
 
     def cell_color(self, cell):
         if len(cell) == 0:
-            return '#AD855C'
+            agent_str = ' '
         else:
-            return str_to_color[str(cell[0])]
+            agent_str = str(cell[0]) 
+        return str_to_color[agent_str]
 
     def iter_once(self):
         self.world.iter_sim()
@@ -80,7 +84,7 @@ class GuiView(object):
         if self.simming:
             self.world.iter_sim()
             self.draw_grid()
-            self.canv.after(1, self.iter_loop)
+            self.canv.after(30, self.iter_loop)
 
     def on_click(self, event):
         if not self.simming:
