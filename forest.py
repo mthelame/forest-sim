@@ -37,6 +37,16 @@ class Forest(object):
         self.cells[old_pos].remove(agent)
         self.cells[new_pos].add(agent)
 
+    def neighbor_coords(self, in_x, in_y):
+        neighbors = []
+        for x in xrange(in_x - 1, in_x + 2):
+            for y in xrange(in_y - 1, in_y + 2):
+                x = x % self.width
+                y = y % self.length
+                if (x,y) != (in_x, in_y):
+                    neighbors.append((x,y))
+        return neighbors
+
     def populate_type(self, agent_type):
         for pos,cell in self.cells.iteritems():
             if random.random() < agent_type.ratio:

@@ -16,7 +16,7 @@ class ForestView(object):
         views = []
         for y in xrange(self.world.length):
             views.append(self.row_view(y))
-        return '\n' + '\n'.join(row for row in views) + '\n'
+        return ('\n' * 10) + '\n'.join(row for row in views) + '\n'
 
     def row_view(self, row):
         view = []
@@ -54,7 +54,6 @@ class GuiView(object):
 
         self.root.bind('<Button-1>', self.on_click)
 
-
     def draw_row(self, row):
         for col in xrange(self.world.width):
             cell = sorted(self.world.cells[col,row], key = lambda a: type(a).ratio)
@@ -89,7 +88,6 @@ class GuiView(object):
             self.iter_loop()
         else:
             self.simming = False
-
 
     def mainloop(self):
         self.root.mainloop()

@@ -1,39 +1,35 @@
 import Tkinter as tk
-import time
+import time, sys
 import forest, view, agents
 
-def init_forest():
-    agent_types = [agents.Tree, agents.LumberJack, agents.Bear]
-    f = forest.Forest(20, agent_types)
-    f.populate_all()
-    return f
 
-
-def tk_main():
-    f = init_forest()
-    app = view.GuiView(f, 12)
-
+def tk_main(forest):
+    app = view.GuiView(forest, 12)
     app.mainloop()
 
 
-def console_main():
-    f = init_forest()
-    fview = view.ForestView(f)
-
+def console_main(forest):
+    fview = view.ForestView(forest)
     counter = 0
     while True:
-        if counter % 2 == 0:
-            print fview.grid_view()
-            print fview.world_status
-
-        if counter % 6 == 0:
+        print fview.grid_view()
+        print fview.world_status
+        if counter % 12 == 0:
             fview.set_status()
 
-        f.iter_sim()
+        forest.iter_sim()
         counter += 1    
 
 
-
 if __name__ == '__main__':
-    # console_main()
-    tk_main()
+    agent_types = [agents.Tree, agents.LumberJack, agents.Bear]
+    f = forest.Forest(30, agent_types)
+    f.populate_all()
+
+    if len(sys.argv) > 1:
+        if sys.argv[1] == 'text':
+            console_main(f)
+        else:
+            print "unknown command"
+    else:
+        tk_main(f)

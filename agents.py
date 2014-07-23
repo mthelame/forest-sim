@@ -35,20 +35,10 @@ class Agent(object):
 
     def action(self):
         self.age += 1
-        
-    def neighbor_coords(self):
-        neighbors = []
-        for x in xrange(self.x - 1, self.x + 2):
-            for y in xrange(self.y - 1, self.y + 2):
-                x = x % self.world.width
-                y = y % self.world.length
-                if (x,y) != (self.x, self.y):
-                    neighbors.append((x,y))
-        return neighbors
 
     def valid_moves(self):
         valids = []
-        for coord in self.neighbor_coords():
+        for coord in self.world.neighbor_coords(self.x, self.y):
             occupants = self.world.cells[coord]
             if not any(type(agent) == type(self) for agent in occupants):
                 valids.append(coord)
@@ -119,7 +109,7 @@ class Tree(Agent):
 
     def try_reproduce(self):
         valid_coords = []
-        for coord in self.neighbor_coords():
+        for coord in self.world.neighbor_coords(self.x, self.y):
             if not any(isinstance(a, Tree) for a in self.world.cells[coord]):
                 valid_coords.append(coord)
         if len(valid_coords) == 0 or random.random() > (Tree.base_fertility * self.stage):
