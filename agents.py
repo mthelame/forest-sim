@@ -44,13 +44,25 @@ class Agent(object):
                 valids.append(coord)
         return valids
 
-    def move(self):
-        possible_moves = self.valid_moves()
-        if len(possible_moves) < 1:
-            return
+    def is_move_valid(self, coords):
+        occupants = self.world.cells[coords]
+        if not any(type(agent) == type(self) for agent in occupants):
+            return True
         else:
-            new_x, new_y = random.choice(possible_moves)
+            return False
 
+    def move(self):
+        possible_moves = self.world.neighbor_coords(self.x, self.y)
+        
+        move = random.choice(possible_moves)
+        while not self.is_move_valid(move):
+            possible_moves.remove(move)
+            try:
+                move = random.choice(possible_moves)
+            except IndexError:
+                return # no valid moves
+
+        new_x, new_y = move
         self.world.update_pos(self, (self.x, self.y), (new_x, new_y))
         self.x = new_x
         self.y = new_y
