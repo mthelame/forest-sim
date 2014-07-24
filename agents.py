@@ -66,7 +66,7 @@ class Agent(object):
 
     @classmethod
     def create_data_dict(cls):
-        return {'count':0}
+        return {}
 
     @classmethod
     def super_action(cls, world, data):
@@ -99,6 +99,9 @@ class Tree(Agent):
         self.age += 1
         if self.age == type(self).age_up_one or self.age == type(self).age_up_two:
             self.stage += 1
+
+        if self.stage == 0:
+            return
 
         offspring = self.try_reproduce()
         if offspring:
@@ -135,7 +138,7 @@ class LumberJack(Agent):
         super(LumberJack, self).__init__(world, x, y)
 
     def preys_on(self, agent):
-        return type(agent) == Tree and agent.stage > 0 and agent.active
+        return isinstance(agent, Tree) and agent.stage > 0 and agent.active
 
     def prey_value(self, prey):
         return int(prey.stage ** 1.6)
@@ -159,7 +162,7 @@ class LumberJack(Agent):
 
     @classmethod
     def create_data_dict(cls):
-        return {'count':0, 'total_lumber': 0}
+        return {'total_lumber': 0}
 
     @classmethod
     def super_action(cls, world, data):
@@ -208,7 +211,7 @@ class LonerLJ(LumberJack):
 
     @classmethod
     def create_data_dict(cls):
-        return {'count': 0}
+        return {}
 
     @classmethod
     def super_action(cls, world, data):
@@ -259,7 +262,7 @@ class Bear(Agent):
 
     @classmethod
     def create_data_dict(cls):
-        return {'count':0, 'mauls': 0}
+        return {'mauls': 0}
 
     @classmethod
     def super_action(cls, world, data):

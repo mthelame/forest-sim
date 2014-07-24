@@ -31,7 +31,7 @@ class ForestView(object):
         return ' '.join(c for c in view)
 
     def graph_type(self, kind):
-        count = self.world.type_data[kind.__name__]['count']
+        count = self.world.count(kind.__name__)
         count = count // kind.graph_units
         return kind.__name__ + ': ' + ''.join([kind.marker for _ in xrange(count)])
 

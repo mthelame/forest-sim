@@ -37,22 +37,29 @@ class Forest(object):
         self.cells[old_pos].remove(agent)
         self.cells[new_pos].add(agent)
 
-    def neighbor_coords(self, in_x, in_y):
-        neighbors = []
-        for x in xrange(in_x - 1, in_x + 2):
-            for y in xrange(in_y - 1, in_y + 2):
-                if x >= self.width or x < 0 or y >= self.length or y < 0:
-                    continue
-                if (x,y) != (in_x, in_y):
-                    neighbors.append((x,y))
-        return neighbors        
+    def neighbor_coords(self, x, y):
+        neighbors = [(x - 1, y - 1),
+                     (x - 1, y),
+                     (x - 1, y + 1),
+                     (x, y - 1),
+                     (x, y + 1),
+                     (x + 1, y - 1),
+                     (x + 1, y),
+                     (x + 1, y + 1)]
+        if x != 0 and x != self.width - 1 and y != 0 and y != self.length - 1:
+            return neighbors # majority of cells will not need to check borders
+
+        valids = []
+        for c in neighbors:
+            if c[0] >= 0 and c[0] < self.width and c[1] >= 0 and c[1] < self.length:
+                valids.append(c)
+        return valids        
 
     def populate_type(self, agent_type):
         for pos,cell in self.cells.iteritems():
             if random.random() < agent_type.ratio:
                 agent = agent_type(self, pos[0], pos[1])
                 self.add_agent(agent)
-        self.type_data[agent_type.__name__]['count'] = self.count_type(agent_type)
 
     def populate_all(self):
         for kind in self.agent_types:
@@ -73,7 +80,6 @@ class Forest(object):
     def iter_sim(self):
         for agent_type in self.agent_types:
             self.agent_type_actions(agent_type)
-            self.type_data[agent_type.__name__]['count'] = self.count_type(agent_type)
         if self.steps % 12 == 0:
             self.super_iter()
         self.steps += 1
@@ -85,13 +91,19 @@ class Forest(object):
 
 class ToroidalForest(Forest):
 
-    def neighbor_coords(self, in_x, in_y):
-        neighbors = []
-        for x in xrange(in_x - 1, in_x + 2):
-            for y in xrange(in_y - 1, in_y + 2):
-                x = x % self.width
-                y = y % self.length
-                if (x,y) != (in_x, in_y):
-                    neighbors.append((x,y))
+    def neighbor_coords(self, x, y):
+        x_min = (x - 1) % self.width
+        x_max = (x + 1) % self.width
+        y_min = (y - 1) % self.length
+        y_max = (y + 1) % self.length
+
+        neighbors = [(x_min, y_min),
+                     (x_min, y),
+                     (x_min, y_max),
+                     (x, y_min),
+                     (x, y_max),
+                     (x_max, y_min),
+                     (x_max, y),
+                     (x_max, y_max)]
         return neighbors
 
