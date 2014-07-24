@@ -7,8 +7,8 @@ class Forest(object):
         self.width = dim
 
         self.cells = dict()
-        for y in xrange(dim):
-            for x in xrange(dim):
+        for y in xrange(self.length):
+            for x in xrange(self.width):
                 self.cells[(x,y)] = set()
 
         self.agent_types = agent_types

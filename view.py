@@ -31,7 +31,7 @@ class ForestView(object):
         return ' '.join(c for c in view)
 
     def graph_type(self, kind):
-        count = self.world.count(kind.__name__)
+        count = self.world.count_type(kind)
         count = count // kind.graph_units
         return kind.__name__ + ': ' + ''.join([kind.marker for _ in xrange(count)])
 
@@ -44,7 +44,7 @@ class ForestView(object):
 class GuiView(object):
 
     def __init__(self, world):
-        self.scale = 500 // world.length
+        self.scale = 600 // world.length
         self.world = world
 
         self.root = tk.Tk()
@@ -62,7 +62,7 @@ class GuiView(object):
             cell = sorted(self.world.cells[col,row], key = lambda a: type(a).ratio)
             x = col*self.scale + 5
             y = row*self.scale + 5
-            self.canv.create_rectangle(y, x, y+self.scale, x+self.scale, fill=self.cell_color(cell))
+            self.canv.create_rectangle(x, y, x+self.scale, y+self.scale, fill=self.cell_color(cell))
 
     def draw_grid(self):
         self.canv.delete('all')
