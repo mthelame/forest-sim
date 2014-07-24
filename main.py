@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import Tkinter as tk
 import time, sys
 import forest, view, agents
@@ -18,12 +20,12 @@ def console_main(forest):
             fview.set_status()
 
         forest.iter_sim()
-        counter += 1    
+        counter += 1
 
 
 if __name__ == '__main__':
     agent_types = [agents.Tree, agents.LonerLJ, agents.LumberJack, agents.Bear]
-    f = forest.Forest(35, agent_types)
+    f = forest.Forest(60, agent_types)
     f.populate_all()
 
     if len(sys.argv) > 1:
