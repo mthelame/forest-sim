@@ -88,6 +88,10 @@ class Forest(object):
         for agent_type in self.agent_types:
             agent_type.super_action(self, self.type_data[agent_type.__name__])
 
+    def reset(self):
+        self.__init__(self.width, self.agent_types)
+        self.populate_all()
+
 
 class ToroidalForest(Forest):
 
