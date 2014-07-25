@@ -44,18 +44,24 @@ class ForestView(object):
 class GuiView(object):
 
     def __init__(self, world):
-        self.scale = 600 // world.length
+        self.scale = 520 // world.length
         self.world = world
-
-        self.root = tk.Tk()
-        self.canv = tk.Canvas(self.root, height=world.length*self.scale + 5, 
-                                         width=world.width*self.scale + 5)
-        self.canv.pack()
-        self.draw_grid()
-
         self.simming = False # whether the sim is running
 
+        self.root = tk.Tk()
+        self.root.resizable(0,0)
+        self.canv = tk.Canvas(self.root, height=world.length*self.scale + 5, 
+                                         width=world.width*self.scale + 5)
+        self.canv.pack(anchor="nw")
+
+        self.graph_canv = tk.Canvas(self.root, height=100, width=world.width*self.scale + 55)
+        self.graph_canv.pack(anchor="s")
+
+
         self.canv.bind('<Button-1>', self.on_click)
+
+        self.draw_grid()
+
 
     def draw_row(self, row):
         for col in xrange(self.world.width):
@@ -68,6 +74,23 @@ class GuiView(object):
         self.canv.delete('all')
         for row in xrange(self.world.length):
             self.draw_row(row)
+
+    def graph_type(self, kind, time):
+        count = self.world.count_type(kind) // kind.graph_units
+        graph_height = self.graph_canv.winfo_height()
+        count_max = (self.world.length * self.world.width) // 20
+
+        g_count = graph_height - ((count * graph_height) // count_max) - 5
+
+        color = str_to_color[kind.marker]
+        self.graph_canv.create_rectangle(time + 2, g_count, 
+                                         time + 4, g_count + 2, 
+                                         fill=color, outline=color)
+
+    def draw_graph(self):
+        month = self.world.steps
+        for kind in self.world.agent_types:
+            self.graph_type(kind, month)
 
     def cell_color(self, cell):
         if len(cell) == 0:
@@ -84,6 +107,7 @@ class GuiView(object):
         if self.simming:
             self.world.iter_sim()
             self.draw_grid()
+            self.draw_graph()
             self.canv.after(30, self.iter_loop)
 
     def on_click(self, event):

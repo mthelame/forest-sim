@@ -91,7 +91,7 @@ class Tree(Agent):
     age_up_one = 24
     age_up_two = 120
     marker = 'T'
-    graph_units = 10
+    graph_units = 20
 
     def __init__(self, world, x, y):
         super(Tree, self).__init__(world, x, y)
