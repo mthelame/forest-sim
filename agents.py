@@ -87,11 +87,11 @@ class Agent(object):
 
 class Tree(Agent):
     ratio = .6
-    base_fertility = 0.015
+    base_fertility = 0.025
     age_up_one = 24
     age_up_two = 120
     marker = 'T'
-    graph_units = 20
+    graph_units = 25
 
     def __init__(self, world, x, y):
         super(Tree, self).__init__(world, x, y)
@@ -246,14 +246,15 @@ class LonerLJ(LumberJack):
 
 class Bear(Agent):
     ratio = 0.003
-    speed = 4
+    speed = 6
     marker = '@'
 
     def __init__(self, world, x, y):
         super(Bear, self).__init__(world, x, y)
+        self.meals = 0
 
     def preys_on(self, agent):
-        return isinstance(agent, LumberJack) and agent.active
+        return (isinstance(agent, LumberJack) or isinstance(agent, Deer)) and agent.active
 
     def action(self):
         self.age += 1
@@ -270,7 +271,9 @@ class Bear(Agent):
         if prey:
             self.world.rem_agent(prey)
             d = self.get_data_dict()
-            d['mauls'] += 1
+            self.meals += 1
+            if isinstance(prey, LumberJack):
+                d['mauls'] += 1
 
     @classmethod
     def create_data_dict(cls):
@@ -279,8 +282,63 @@ class Bear(Agent):
     @classmethod
     def super_action(cls, world, data):
         mauls = data['mauls']
-        if mauls == 0:
-            world.add_agent(world.spawn_new(cls))
-        else:
+        if mauls >= 3:
             world.rem_agent(world.random_agent(cls))
         data['mauls'] = 0
+
+        all_bears = list(world.agents[cls.__name__])
+        for b in all_bears:
+            if b.meals < 1: # bear starves
+                world.rem_agent(b)
+            elif b.meals > 2 and b.age > 2*12: # bear breeds
+                world.add_agent(world.spawn_new(cls))
+            b.meals -= 1
+
+        if len(all_bears) < cls.ratio * world.length * world.width: # a new bear senses opportunity
+            world.add_agent(world.spawn_new(cls))
+
+
+
+class Deer(Agent):
+    ratio = .004
+    speed = 3
+    marker = 'D'
+
+    def __init__(self, world, x, y):
+        super(Deer, self).__init__(world, x, y)
+        self.meals = 0
+
+    def preys_on(self, agent):
+        return isinstance(agent, Tree) and agent.active and agent.stage < 2
+
+    def action(self):
+        self.age += 1
+        moves_left = type(self).speed
+        prey = None
+        while moves_left > 0:
+            prey = self.get_prey()
+            if prey:
+                prey.active = False
+                break
+
+            self.move()
+            moves_left -= 1
+        if prey:
+            self.world.rem_agent(prey)
+            d = self.get_data_dict()
+            self.meals += 1
+
+    @classmethod
+    def super_action(cls, world, data):
+        all_deer = list(world.agents[cls.__name__])
+        if len(all_deer) == 0: # a lone deer wanders in
+            world.add_agent(world.spawn_new(cls))
+
+        for d in all_deer:
+            if d.meals < 3: # deer starves
+                world.rem_agent(d)
+            elif d.meals > 8 and d.age > 2 * 12: # deer breeds only after two years
+                world.add_agent(world.spawn_new(cls))
+            else:
+                pass
+            d.meals = 0
